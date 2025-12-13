@@ -1,0 +1,56 @@
+CHIP DisplayCounter {
+    IN dec, reset;
+    OUT a, b, c, d, e, f, g;
+
+    PARTS:
+    Bit(in=next0, load=load, out=q0);
+    Bit(in=next1, load=load, out=q1);
+    Bit(in=next2, load=load, out=q2);
+    Bit(in=next3, load=load, out=q3);
+
+    Or(a=dec, b=reset, out=load);
+
+    Or(a=q0, b=q1, out=o1);
+    Or(a=q2, b=q3, out=o2);
+    Or(a=o1, b=o2, out=nonZero);
+    Not(in=nonZero, out=isZero);
+
+    And(a=true, b=true, out=n3);
+    And(a=true, b=true, out=n0);
+    And(a=false, b=false, out=n2);
+    And(a=false, b=false, out=n1);
+
+    Not(in=q0, out=d0);
+
+    Not(in=q0, out=nq0);
+    Not(in=q1, out=nq1);
+    Not(in=q2, out=nq2);
+
+    And(a=nq0, b=q1, out=b1);
+    And(a=b1, b=true, out=d1);
+
+    And(a=nq0, b=nq1, out=b2);
+    And(a=b2, b=q2, out=d2);
+
+    And(a=nq0, b=nq1, out=b3);
+    And(a=b3, b=nq2, out=b4);
+    And(a=b4, b=q3, out=d3);
+
+    Mux(a=d0, b=n0, sel=isZero, out=r0);
+    Mux(a=d1, b=n1, sel=isZero, out=r1);
+    Mux(a=d2, b=n2, sel=isZero, out=r2);
+    Mux(a=d3, b=n3, sel=isZero, out=r3);
+
+    Mux(a=r0, b=n0, sel=reset, out=next0);
+    Mux(a=r1, b=n1, sel=reset, out=next1);
+    Mux(a=r2, b=n2, sel=reset, out=next2);
+    Mux(a=r3, b=n3, sel=reset, out=next3);
+
+    Decoder(
+        in[0]=q0,
+        in[1]=q1,
+        in[2]=q2,
+        in[3]=q3,
+        a=a, b=b, c=c, d=d, e=e, f=f, g=g
+    );
+}
